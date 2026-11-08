@@ -105,4 +105,74 @@ try:
         
         st.markdown("### Inspiration & Moodboard")
         
-        col_vide1, col_vibe
+        col_vide1, col_vibe1, col_vibe2, col_vide2 = st.columns([1, 2.5, 2.5, 1])
+        
+        with col_vibe1:
+            chemin_vibe1 = "images/contexte/vibe-1.jpg"
+            if os.path.exists(chemin_vibe1):
+                b64_v1 = get_image_base64(chemin_vibe1)
+                if b64_v1:
+                    # Hauteur fixée à 500px avec object-fit pour un alignement parfait
+                    st.markdown(f'<img src="{b64_v1}" style="width:100%; height:500px; object-fit:cover; border-radius:8px;">', unsafe_allow_html=True)
+                    
+        with col_vibe2:
+            chemin_vibe2 = "images/contexte/Vibe-2.jpg" 
+            if os.path.exists(chemin_vibe2):
+                b64_v2 = get_image_base64(chemin_vibe2)
+                if b64_v2:
+                    # Même hauteur exacte que la Vibe 1
+                    st.markdown(f'<img src="{b64_v2}" style="width:100%; height:500px; object-fit:cover; border-radius:8px;">', unsafe_allow_html=True)
+                    
+        st.divider()
+
+    # --- AFFICHAGE DES ARTICLES ---
+    df_page = df[df['catégorie'] == page_actuelle]
+    liste_sous_categories = df_page['sous-catégorie'].unique().tolist()
+
+    for sous_cat in liste_sous_categories:
+        st.header(f"📌 {sous_cat}")
+        df_section = df_page[df_page['sous-catégorie'] == sous_cat]
+        colonnes = st.columns(4)
+        
+        for index, row in df_section.iterrows():
+            lien = str(row['lien']).strip() if pd.notna(row['lien']) else ""
+            nom = str(row['nom']).strip() if pd.notna(row['nom']) else "Article sans nom"
+            prix = str(row['prix']).strip() if pd.notna(row['prix']) else "N/A"
+            image_cellule = str(row['image']).strip() if pd.notna(row['image']) else ""
+            
+            favori_val = str(row['favori']).strip().lower()
+            est_favori = favori_val in ['oui', 'x', '1', 'true']
+            titre_affiche = f"⭐ {nom.capitalize()}" if est_favori else nom.capitalize()
+            
+            image_paths = []
+            if image_cellule and image_cellule.lower() != 'nan':
+                if os.path.isdir(image_cellule):
+                    fichiers = sorted(os.listdir(image_cellule))
+                    for f in fichiers:
+                        if f.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
+                            image_paths.append(os.path.join(image_cellule, f))
+                elif os.path.isfile(image_cellule):
+                    image_paths.append(image_cellule)
+
+            if lien.startswith("http"):
+                col_index = list(df_section.index).index(index)
+                col = colonnes[col_index % 4]
+                
+                with col:
+                    if len(image_paths) > 1:
+                        st.markdown(build_carousel(image_paths), unsafe_allow_html=True)
+                    elif len(image_paths) == 1:
+                        st.markdown(f'<img src="{get_image_base64(image_paths[0])}" style="width:100%; height:250px; margin-bottom:15px;">', unsafe_allow_html=True)
+                    else:
+                        st.markdown(f'<img src="{fetch_image_online(lien)}" style="width:100%; height:250px; margin-bottom:15px;">', unsafe_allow_html=True)
+                    
+                    st.subheader(titre_affiche)
+                    st.write(f"**Prix : {prix} €**")
+                    st.link_button("Voir l'article", lien)
+        
+        st.divider()
+
+except FileNotFoundError:
+    st.error("Le fichier 'Treck stuff.xlsx' est introuvable.")
+except Exception as e:
+    st.error(f"Une erreur s'est produite : {e}")
