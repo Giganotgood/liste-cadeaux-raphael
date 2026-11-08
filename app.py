@@ -77,7 +77,6 @@ try:
     liste_categories = df['catégorie'].unique().tolist()
     page_actuelle = st.sidebar.radio("Choisissez une catégorie :", liste_categories)
 
-    # Ajout du design de la sidebar (Proposition 2)
     st.sidebar.divider()
     if os.path.exists("images/contexte/sidebar-1.jpg"):
         st.sidebar.image("images/contexte/sidebar-1.jpg", use_container_width=True)
@@ -87,21 +86,34 @@ try:
     # --- EN-TÊTE DE LA PAGE PRINCIPALE ---
     st.title(f"Catégorie : {page_actuelle}")
     
-    # Ajout du design "Lookbook" uniquement pour la catégorie Trek (Proposition 1)
+    # Section Trek (Bannière et Moodboard redimensionnés)
     if page_actuelle.lower() == "trek":
-        # Bannière
-        if os.path.exists("images/contexte/banniere.jpg"):
-            st.image("images/contexte/banniere.jpg", use_container_width=True)
+        # Bannière : forçage HTML pour limiter la hauteur à 400px
+        chemin_banniere = "images/contexte/banniere.jpg"
+        if os.path.exists(chemin_banniere):
+            b64_banniere = get_image_base64(chemin_banniere)
+            if b64_banniere:
+                st.markdown(f'<img src="{b64_banniere}" style="width:100%; height:400px; margin-bottom:20px;">', unsafe_allow_html=True)
         
-        # Section Inspiration
-        st.markdown("### 🏴‍☠️ Inspiration & Moodboard")
+        # Section Inspiration sans l'émoji pirate
+        st.markdown("### Inspiration & Moodboard")
         col_vibe1, col_vibe2 = st.columns(2)
+        
         with col_vibe1:
-            if os.path.exists("images/contexte/vibe-1.jpg"):
-                st.image("images/contexte/vibe-1.jpg", use_container_width=True)
+            chemin_vibe1 = "images/contexte/vibe-1.jpg"
+            if os.path.exists(chemin_vibe1):
+                b64_v1 = get_image_base64(chemin_vibe1)
+                if b64_v1:
+                    st.markdown(f'<img src="{b64_v1}" style="width:100%; height:350px;">', unsafe_allow_html=True)
+                    
         with col_vibe2:
-            if os.path.exists("images/contexte/vibe-2.jpg"):
-                st.image("images/contexte/vibe-2.jpg", use_container_width=True)
+            # Correction de la majuscule "V" pour correspondre à GitHub
+            chemin_vibe2 = "images/contexte/Vibe-2.jpg" 
+            if os.path.exists(chemin_vibe2):
+                b64_v2 = get_image_base64(chemin_vibe2)
+                if b64_v2:
+                    st.markdown(f'<img src="{b64_v2}" style="width:100%; height:350px;">', unsafe_allow_html=True)
+                    
         st.divider()
 
     # --- AFFICHAGE DES ARTICLES ---
