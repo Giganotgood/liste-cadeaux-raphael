@@ -8,9 +8,19 @@ import base64
 # --- CONFIGURATION DE LA PAGE ---
 st.set_page_config(page_title="Mon Catalogue", page_icon="📦", layout="wide")
 
+# CSS global pour les images et pour nettoyer la sidebar
 st.markdown("""
 <style>
     img { object-fit: cover !important; border-radius: 8px; }
+    
+    /* Masquer la barre de défilement moche de la sidebar */
+    [data-testid="stSidebarUserContent"] {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    [data-testid="stSidebarUserContent"]::-webkit-scrollbar {
+        display: none;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -78,7 +88,6 @@ try:
     page_actuelle = st.sidebar.radio("Choisissez une catégorie :", liste_categories)
 
     st.sidebar.divider()
-    # Boucle pour afficher sidebar-1, sidebar-2 et sidebar-3
     for i in range(1, 4):
         chemin_sidebar = f"images/contexte/sidebar-{i}.jpg"
         if os.path.exists(chemin_sidebar):
@@ -87,31 +96,32 @@ try:
     # --- EN-TÊTE DE LA PAGE PRINCIPALE ---
     st.title(f"Catégorie : {page_actuelle}")
     
-    # Section Trek (Bannière et Moodboard)
     if page_actuelle.lower() == "trek":
-        # Bannière : max-height pour éviter qu'elle soit géante, mais sans couper bizarrement
         chemin_banniere = "images/contexte/banniere.jpg"
         if os.path.exists(chemin_banniere):
             b64_banniere = get_image_base64(chemin_banniere)
             if b64_banniere:
                 st.markdown(f'<img src="{b64_banniere}" style="width:100%; max-height:450px; object-fit:cover; object-position:center; margin-bottom:20px;">', unsafe_allow_html=True)
         
-        # Section Inspiration
         st.markdown("### Inspiration & Moodboard")
         
-        # Astuce : On crée 4 colonnes [vide, image, image, vide] pour réduire la taille au centre
         col_vide1, col_vibe1, col_vibe2, col_vide2 = st.columns([1, 2.5, 2.5, 1])
         
         with col_vibe1:
             chemin_vibe1 = "images/contexte/vibe-1.jpg"
             if os.path.exists(chemin_vibe1):
-                # Utilisation de st.image pour garder la proportion 100% intacte
-                st.image(chemin_vibe1, use_container_width=True)
+                b64_v1 = get_image_base64(chemin_vibe1)
+                if b64_v1:
+                    # Hauteur fixée à 500px avec object-fit pour un alignement parfait
+                    st.markdown(f'<img src="{b64_v1}" style="width:100%; height:500px; object-fit:cover; border-radius:8px;">', unsafe_allow_html=True)
                     
         with col_vibe2:
             chemin_vibe2 = "images/contexte/Vibe-2.jpg" 
             if os.path.exists(chemin_vibe2):
-                st.image(chemin_vibe2, use_container_width=True)
+                b64_v2 = get_image_base64(chemin_vibe2)
+                if b64_v2:
+                    # Même hauteur exacte que la Vibe 1
+                    st.markdown(f'<img src="{b64_v2}" style="width:100%; height:500px; object-fit:cover; border-radius:8px;">', unsafe_allow_html=True)
                     
         st.divider()
 
