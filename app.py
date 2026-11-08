@@ -78,41 +78,40 @@ try:
     page_actuelle = st.sidebar.radio("Choisissez une catégorie :", liste_categories)
 
     st.sidebar.divider()
-    if os.path.exists("images/contexte/sidebar-1.jpg"):
-        st.sidebar.image("images/contexte/sidebar-1.jpg", use_container_width=True)
-    if os.path.exists("images/contexte/sidebar-2.jpg"):
-        st.sidebar.image("images/contexte/sidebar-2.jpg", use_container_width=True)
+    # Boucle pour afficher sidebar-1, sidebar-2 et sidebar-3
+    for i in range(1, 4):
+        chemin_sidebar = f"images/contexte/sidebar-{i}.jpg"
+        if os.path.exists(chemin_sidebar):
+            st.sidebar.image(chemin_sidebar, use_container_width=True)
 
     # --- EN-TÊTE DE LA PAGE PRINCIPALE ---
     st.title(f"Catégorie : {page_actuelle}")
     
-    # Section Trek (Bannière et Moodboard redimensionnés)
+    # Section Trek (Bannière et Moodboard)
     if page_actuelle.lower() == "trek":
-        # Bannière : forçage HTML pour limiter la hauteur à 400px
+        # Bannière : max-height pour éviter qu'elle soit géante, mais sans couper bizarrement
         chemin_banniere = "images/contexte/banniere.jpg"
         if os.path.exists(chemin_banniere):
             b64_banniere = get_image_base64(chemin_banniere)
             if b64_banniere:
-                st.markdown(f'<img src="{b64_banniere}" style="width:100%; height:400px; margin-bottom:20px;">', unsafe_allow_html=True)
+                st.markdown(f'<img src="{b64_banniere}" style="width:100%; max-height:450px; object-fit:cover; object-position:center; margin-bottom:20px;">', unsafe_allow_html=True)
         
-        # Section Inspiration sans l'émoji pirate
+        # Section Inspiration
         st.markdown("### Inspiration & Moodboard")
-        col_vibe1, col_vibe2 = st.columns(2)
+        
+        # Astuce : On crée 4 colonnes [vide, image, image, vide] pour réduire la taille au centre
+        col_vide1, col_vibe1, col_vibe2, col_vide2 = st.columns([1, 2.5, 2.5, 1])
         
         with col_vibe1:
             chemin_vibe1 = "images/contexte/vibe-1.jpg"
             if os.path.exists(chemin_vibe1):
-                b64_v1 = get_image_base64(chemin_vibe1)
-                if b64_v1:
-                    st.markdown(f'<img src="{b64_v1}" style="width:100%; height:350px;">', unsafe_allow_html=True)
+                # Utilisation de st.image pour garder la proportion 100% intacte
+                st.image(chemin_vibe1, use_container_width=True)
                     
         with col_vibe2:
-            # Correction de la majuscule "V" pour correspondre à GitHub
             chemin_vibe2 = "images/contexte/Vibe-2.jpg" 
             if os.path.exists(chemin_vibe2):
-                b64_v2 = get_image_base64(chemin_vibe2)
-                if b64_v2:
-                    st.markdown(f'<img src="{b64_v2}" style="width:100%; height:350px;">', unsafe_allow_html=True)
+                st.image(chemin_vibe2, use_container_width=True)
                     
         st.divider()
 
