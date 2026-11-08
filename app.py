@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 import os
 import base64
 
+# --- CONFIGURATION DE LA PAGE ---
 st.set_page_config(page_title="Mon Catalogue", page_icon="📦", layout="wide")
 
 st.markdown("""
@@ -13,6 +14,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# --- FONCTIONS UTILITAIRES ---
 def get_image_base64(path):
     try:
         with open(path, "rb") as f:
@@ -58,11 +60,11 @@ def fetch_image_online(url):
         pass
     return "https://via.placeholder.com/300x250?text=Image+Manquante"
 
+# --- CONSTRUCTION DU SITE ---
 try:
     df = pd.read_excel("Treck stuff.xlsx", header=0)
     df.columns = [str(col).strip().lower() for col in df.columns]
     
-    # Ajout de 'favori' dans les colonnes vérifiées
     for col in ['lien', 'nom', 'prix', 'image', 'catégorie', 'sous-catégorie', 'favori']:
         if col not in df.columns:
             df[col] = ""
@@ -70,11 +72,39 @@ try:
     df['catégorie'] = df['catégorie'].fillna('Non classé')
     df['sous-catégorie'] = df['sous-catégorie'].fillna('Général')
 
+    # --- MENU LATÉRAL (SIDEBAR) ---
     st.sidebar.title("Navigation")
     liste_categories = df['catégorie'].unique().tolist()
     page_actuelle = st.sidebar.radio("Choisissez une catégorie :", liste_categories)
 
+    # Ajout du design de la sidebar (Proposition 2)
+    st.sidebar.divider()
+    if os.path.exists("images/contexte/sidebar-1.jpg"):
+        st.sidebar.image("images/contexte/sidebar-1.jpg", use_container_width=True)
+    if os.path.exists("images/contexte/sidebar-2.jpg"):
+        st.sidebar.image("images/contexte/sidebar-2.jpg", use_container_width=True)
+
+    # --- EN-TÊTE DE LA PAGE PRINCIPALE ---
     st.title(f"Catégorie : {page_actuelle}")
+    
+    # Ajout du design "Lookbook" uniquement pour la catégorie Trek (Proposition 1)
+    if page_actuelle.lower() == "trek":
+        # Bannière
+        if os.path.exists("images/contexte/banniere.jpg"):
+            st.image("images/contexte/banniere.jpg", use_container_width=True)
+        
+        # Section Inspiration
+        st.markdown("### 🏴‍☠️ Inspiration & Moodboard")
+        col_vibe1, col_vibe2 = st.columns(2)
+        with col_vibe1:
+            if os.path.exists("images/contexte/vibe-1.jpg"):
+                st.image("images/contexte/vibe-1.jpg", use_container_width=True)
+        with col_vibe2:
+            if os.path.exists("images/contexte/vibe-2.jpg"):
+                st.image("images/contexte/vibe-2.jpg", use_container_width=True)
+        st.divider()
+
+    # --- AFFICHAGE DES ARTICLES ---
     df_page = df[df['catégorie'] == page_actuelle]
     liste_sous_categories = df_page['sous-catégorie'].unique().tolist()
 
@@ -89,7 +119,6 @@ try:
             prix = str(row['prix']).strip() if pd.notna(row['prix']) else "N/A"
             image_cellule = str(row['image']).strip() if pd.notna(row['image']) else ""
             
-            # Détection de l'étoile
             favori_val = str(row['favori']).strip().lower()
             est_favori = favori_val in ['oui', 'x', '1', 'true']
             titre_affiche = f"⭐ {nom.capitalize()}" if est_favori else nom.capitalize()
